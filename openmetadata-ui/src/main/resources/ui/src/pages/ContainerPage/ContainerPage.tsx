@@ -29,8 +29,9 @@ import ErrorPlaceHolder from '../../components/common/ErrorWithPlaceholder/Error
 import ContainerChildren from '../../components/ContainerDetail/ContainerChildren/ContainerChildren';
 import ContainerDataModel from '../../components/ContainerDetail/ContainerDataModel/ContainerDataModel';
 import { DataAssetsHeader } from '../../components/DataAssets/DataAssetsHeader/DataAssetsHeader.component';
-import EntityLineageComponent from '../../components/Entity/EntityLineage/EntityLineage.component';
 import EntityRightPanel from '../../components/Entity/EntityRightPanel/EntityRightPanel';
+import Lineage from '../../components/Lineage/Lineage.component';
+import LineageProvider from '../../components/LineageProvider/LineageProvider';
 import Loader from '../../components/Loader/Loader';
 import { EntityName } from '../../components/Modals/EntityNameModal/EntityNameModal.interface';
 import PageLayoutV1 from '../../components/PageLayoutV1/PageLayoutV1';
@@ -39,6 +40,7 @@ import {
   OperationPermission,
   ResourceEntity,
 } from '../../components/PermissionProvider/PermissionProvider.interface';
+import { SourceType } from '../../components/SearchedData/SearchedData.interface';
 import { QueryVote } from '../../components/TableQueries/TableQueries.interface';
 import TabsLabel from '../../components/TabsLabel/TabsLabel.component';
 import {
@@ -424,6 +426,34 @@ const ContainerPage = () => {
     }
   };
 
+  const handleTagUpdate = useCallback(
+    async (updatedContainer: Container) => {
+      if (isUndefined(containerData)) {
+        return;
+      }
+
+      try {
+        const response = await handleUpdateContainerData({
+          ...containerData,
+          tags: updatedContainer.tags,
+        });
+        setContainerData({
+          ...response,
+          tags: sortTagsCaseInsensitive(response.tags ?? []),
+        });
+        getEntityFeedCount();
+      } catch (error) {
+        showErrorToast(error as AxiosError);
+      }
+    },
+    [
+      containerData,
+      handleUpdateContainerData,
+      getEntityFeedCount,
+      setContainerData,
+    ]
+  );
+
   const handleExtensionUpdate = useCallback(
     async (updatedContainer: Container) => {
       if (isUndefined(containerData)) {
@@ -509,7 +539,7 @@ const ContainerPage = () => {
     if (updatedTags && containerData) {
       const updatedTags = [...(tier ? [tier] : []), ...selectedTags];
       const updatedContainer = { ...containerData, tags: updatedTags };
-      await handleExtensionUpdate(updatedContainer);
+      await handleTagUpdate(updatedContainer);
     }
   };
 
@@ -630,12 +660,14 @@ const ContainerPage = () => {
         label: <TabsLabel id={EntityTabs.LINEAGE} name={t('label.lineage')} />,
         key: EntityTabs.LINEAGE,
         children: (
-          <EntityLineageComponent
-            deleted={deleted}
-            entity={containerData}
-            entityType={EntityType.CONTAINER}
-            hasEditAccess={editLineagePermission}
-          />
+          <LineageProvider>
+            <Lineage
+              deleted={deleted}
+              entity={containerData as SourceType}
+              entityType={EntityType.CONTAINER}
+              hasEditAccess={editLineagePermission}
+            />
+          </LineageProvider>
         ),
       },
       {

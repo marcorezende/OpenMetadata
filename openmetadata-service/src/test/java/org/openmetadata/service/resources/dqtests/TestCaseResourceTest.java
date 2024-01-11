@@ -443,7 +443,9 @@ public class TestCaseResourceTest extends EntityResourceTest<TestCase, CreateTes
     // test we get the right summary for the executable test suite
     TestSummary executableTestSummary =
         getTestSummary(ADMIN_AUTH_HEADERS, testCase.getTestSuite().getId().toString());
-    assertEquals(2, executableTestSummary.getTotal());
+    TestSuite testSuite =
+        testSuiteResourceTest.getEntity(testCase.getTestSuite().getId(), "*", ADMIN_AUTH_HEADERS);
+    assertEquals(testSuite.getTests().size(), executableTestSummary.getTotal());
 
     // test we get the right summary for the logical test suite
     TestSummary logicalTestSummary =
@@ -453,30 +455,22 @@ public class TestCaseResourceTest extends EntityResourceTest<TestCase, CreateTes
     testCaseIds.add(testCase.getId());
     testSuiteResourceTest.addTestCasesToLogicalTestSuite(logicalTestSuite, testCaseIds);
     logicalTestSummary = getTestSummary(ADMIN_AUTH_HEADERS, logicalTestSuite.getId().toString());
-    assertEquals(
-        2,
-        logicalTestSummary
-            .getTotal()); // we added a new test case to the logical test suite check if the summary
-    // is updated
-
+    assertEquals(2, logicalTestSummary.getTotal());
     deleteEntity(testCase1.getId(), ADMIN_AUTH_HEADERS);
-
     executableTestSummary =
         getTestSummary(ADMIN_AUTH_HEADERS, testCase.getTestSuite().getId().toString());
-    assertEquals(
-        1,
-        executableTestSummary
-            .getTotal()); // we deleted a test case from the executable test suite check if the
-    // summary is updated
+    testSuite =
+        testSuiteResourceTest.getEntity(testCase.getTestSuite().getId(), "*", ADMIN_AUTH_HEADERS);
+    assertEquals(testSuite.getTests().size(), executableTestSummary.getTotal());
 
     logicalTestSummary = getTestSummary(ADMIN_AUTH_HEADERS, logicalTestSuite.getId().toString());
-    assertEquals(1, logicalTestSummary.getTotal());
+    assertEquals(2, logicalTestSummary.getTotal());
     // check the deletion of the test case from the executable test suite
     // cascaded to the logical test suite
     deleteLogicalTestCase(logicalTestSuite, testCase.getId());
     logicalTestSummary = getTestSummary(ADMIN_AUTH_HEADERS, logicalTestSuite.getId().toString());
     // check the deletion of the test case from the logical test suite is reflected in the summary
-    assertNull(logicalTestSummary.getTotal());
+    assertEquals(1, logicalTestSummary.getTotal());
   }
 
   @Test
@@ -1090,6 +1084,44 @@ public class TestCaseResourceTest extends EntityResourceTest<TestCase, CreateTes
   }
 
   @Test
+  void get_testCaseResultWithIncidentId(TestInfo test)
+      throws HttpResponseException, ParseException {
+
+    // We create a test case with a failure
+    TestCase testCaseEntity = createEntity(createRequest(getEntityName(test)), ADMIN_AUTH_HEADERS);
+    putTestCaseResult(
+        testCaseEntity.getFullyQualifiedName(),
+        new TestCaseResult()
+            .withResult("result")
+            .withTestCaseStatus(TestCaseStatus.Failed)
+            .withTimestamp(TestUtils.dateToTimestamp("2024-01-01")),
+        ADMIN_AUTH_HEADERS);
+
+    // We can get it via API with a list of ongoing incidents
+    TestCase result = getTestCase(testCaseEntity.getFullyQualifiedName(), ADMIN_AUTH_HEADERS);
+
+    assertNotNull(result.getIncidentId());
+
+    // Resolving the status triggers resolving the task, which triggers removing the ongoing
+    // incident from the test case
+    CreateTestCaseResolutionStatus createResolvedStatus =
+        new CreateTestCaseResolutionStatus()
+            .withTestCaseReference(testCaseEntity.getFullyQualifiedName())
+            .withTestCaseResolutionStatusType(TestCaseResolutionStatusTypes.Resolved)
+            .withTestCaseResolutionStatusDetails(
+                new Resolved()
+                    .withTestCaseFailureComment("resolved")
+                    .withTestCaseFailureReason(TestCaseFailureReasonType.MissingData)
+                    .withResolvedBy(USER1_REF));
+    createTestCaseFailureStatus(createResolvedStatus);
+
+    // If we read again, the incident list will be empty
+    result = getTestCase(testCaseEntity.getFullyQualifiedName(), ADMIN_AUTH_HEADERS);
+
+    assertNull(result.getIncidentId());
+  }
+
+  @Test
   void post_createTestCaseResultFailure(TestInfo test)
       throws HttpResponseException, ParseException {
     // We're going to check how each test only has a single open stateID
@@ -1491,6 +1523,13 @@ public class TestCaseResourceTest extends EntityResourceTest<TestCase, CreateTes
     return TestUtils.get(target, TestCaseResource.TestCaseResultList.class, authHeaders);
   }
 
+  public TestCase getTestCase(String fqn, Map<String, String> authHeaders)
+      throws HttpResponseException {
+    WebTarget target = getCollection().path("/name/" + fqn);
+    target = target.queryParam("fields", "incidentId");
+    return TestUtils.get(target, TestCase.class, authHeaders);
+  }
+
   private TestSummary getTestSummary(Map<String, String> authHeaders, String testSuiteId)
       throws IOException {
     TestSuiteResourceTest testSuiteResourceTest = new TestSuiteResourceTest();
@@ -1571,7 +1610,6 @@ public class TestCaseResourceTest extends EntityResourceTest<TestCase, CreateTes
     assertEquals(expectedTestCaseResults.size(), actualTestCaseResults.getData().size());
     Map<Long, TestCaseResult> testCaseResultMap = new HashMap<>();
     for (TestCaseResult result : actualTestCaseResults.getData()) {
-      result.setIncidentId(null);
       testCaseResultMap.put(result.getTimestamp(), result);
     }
     for (TestCaseResult result : expectedTestCaseResults) {

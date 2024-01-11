@@ -676,7 +676,11 @@ site_menu:
   - category: Connectors / Metadata / Atlas
     url: /connectors/metadata/atlas
   - category: Connectors / Metadata / Atlas / Run Externally
-    url: /connectors/metadata/atlas/yaml
+    url: /connectors/metadata/
+  - category: Connectors / Metadata / Alation
+    url: /connectors/metadata/alation
+  - category: Connectors / Metadata / Alation / Run Externally
+    url: /connectors/metadata/alation/yaml
 
   - category: Connectors / Custom Connectors
     url: /connectors/custom-connectors
@@ -741,6 +745,8 @@ site_menu:
     url: /connectors/ingestion/lineage
   - category: Connectors / Ingestion / Lineage / Edit Data Lineage Manually
     url: /connectors/ingestion/lineage/edit-lineage-manually
+  - category: Connectors / Ingestion / Lineage / Spark Lineage
+    url: /connectors/ingestion/lineage/spark-lineage
   - category: Connectors / Ingestion / Versioning
     url: /connectors/ingestion/versioning
   - category: Connectors / Ingestion / Auto Tagging

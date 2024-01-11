@@ -51,6 +51,7 @@ VERSIONS = {
     "snowflake": "snowflake-sqlalchemy~=1.4",
     "elasticsearch8": "elasticsearch8~=8.9.0",
     "giturlparse": "giturlparse",
+    "validators": "validators~=0.22.0",
 }
 
 COMMONS = {
@@ -156,6 +157,7 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["azure-identity"],
     },
     "db2": {"ibm-db-sa~=0.3"},
+    "db2-ibmi": {"sqlalchemy-ibmi~=0.9.3"},
     "databricks": {VERSIONS["sqlalchemy-databricks"], VERSIONS["databricks-sdk"]},
     "datalake-azure": {
         VERSIONS["azure-storage-blob"],
@@ -249,7 +251,7 @@ plugins: Dict[str, Set[str]] = {
     "sklearn": {VERSIONS["scikit-learn"]},
     "snowflake": {VERSIONS["snowflake"]},
     "superset": {},  # uses requests
-    "tableau": {VERSIONS["tableau"]},
+    "tableau": {VERSIONS["tableau"], VERSIONS["validators"], VERSIONS["packaging"]},
     "trino": {VERSIONS["trino"]},
     "vertica": {"sqlalchemy-vertica[vertica-python]>=0.0.5"},
     "pii-processor": pii_requirements,
@@ -266,6 +268,7 @@ dev = {
     "twine",
     "build",
 }
+
 
 test = {
     # Install Airflow as it's not part of `all` plugin
@@ -304,6 +307,10 @@ e2e_test = {
     "pytest-base-url",
 }
 
+extended_testing = {
+    "Faker",  # For Sample Data Generation
+}
+
 
 def filter_requirements(filtered: Set[str]) -> List[str]:
     """Filter out requirements from base_requirements"""
@@ -325,6 +332,7 @@ setup(
         "dev": list(dev),
         "test": list(test),
         "e2e_test": list(e2e_test),
+        "extended_testing": list(extended_testing),
         "data-insight": list(plugins["elasticsearch"]),
         **{plugin: list(dependencies) for (plugin, dependencies) in plugins.items()},
         "all": filter_requirements({"airflow", "db2", "great-expectations"}),
