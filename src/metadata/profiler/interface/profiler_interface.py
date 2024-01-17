@@ -18,6 +18,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy import Column
+from typing_extensions import Self
 
 from metadata.generated.schema.entity.data.database import (
     Database,
@@ -150,7 +151,7 @@ class ProfilerInterface(ABC):
         service_connection_config,
         ometa_client: Optional[OpenMetadata],
         **kwargs,
-    ) -> "ProfilerInterface":
+    ) -> Self:
         """create class method is used to dispatch the profiler protocol to the
         correct object based on the service connection object
 

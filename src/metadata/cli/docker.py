@@ -114,7 +114,7 @@ def start_docker(docker, start_time, file_path, ingest_sample_data: bool):
                     raise RuntimeError("Error")
                 break
             except Exception:
-                sys.stdout.write("")
+                sys.stdout.write(".")
                 sys.stdout.flush()
                 time.sleep(5)
         ometa_logger().disabled = False
@@ -341,7 +341,7 @@ def wait_for_containers(docker) -> None:
         )
         if running:
             break
-        sys.stdout.write("")
+        sys.stdout.write(".")
         sys.stdout.flush()
         time.sleep(5)
 
@@ -375,7 +375,7 @@ def run_sample_data() -> None:
             sys.stdout.write(str(err))
             sys.exit(1)
         except Exception:
-            sys.stdout.write("")
+            sys.stdout.write(".")
             time.sleep(5)
     for dag in dags:
         json_sample_data = {"is_paused": False}

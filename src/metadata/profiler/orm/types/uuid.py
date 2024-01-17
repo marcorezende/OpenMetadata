@@ -14,7 +14,7 @@ Expand sqlalchemy types to map them to OpenMetadata DataType
 """
 # pylint: disable=duplicate-code,abstract-method
 import traceback
-from metadata.profiler.orm.types.uuid import UUID
+from uuid import UUID
 
 from sqlalchemy.sql.sqltypes import String, TypeDecorator
 
