@@ -134,6 +134,7 @@ base_requirements = {
     "psycopg2-binary",
     VERSIONS["geoalchemy2"],
     VERSIONS["packaging"],
+    "pendulum==2.0.0"
 }
 
 
