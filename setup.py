@@ -130,6 +130,7 @@ base_requirements = {
     "attrs",
     VERSIONS["sqlalchemy-databricks"],
     VERSIONS["databricks-sdk"],
+    "trino==0.327.0",
     VERSIONS["pymysql"],
     "psycopg2-binary",
     VERSIONS["geoalchemy2"],
