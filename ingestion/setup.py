@@ -28,7 +28,7 @@ def get_long_description():
 
 # Add here versions required for multiple plugins
 VERSIONS = {
-    "airflow": "apache-airflow==2.6.3",
+    "airflow": "apache-airflow==2.4.0",
     "avro": "avro~=1.11",
     "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
     "geoalchemy2": "GeoAlchemy2~=0.12",
@@ -47,7 +47,7 @@ VERSIONS = {
     "azure-storage-blob": "azure-storage-blob~=12.14",
     "azure-identity": "azure-identity~=1.12",
     "sqlalchemy-databricks": "sqlalchemy-databricks~=0.1",
-    "databricks-sdk": "databricks-sdk~=0.1",
+    "databricks-sdk": "databricks-sdk==0.16.0",
     "google": "google>=3.0.0",
     "trino": "trino[sqlalchemy]",
     "spacy": "spacy==3.5.0",
@@ -126,6 +126,14 @@ base_requirements = {
     "typing-compat~=0.1.0",  # compatibility requirements for 3.7
     "typing-inspect",
     "wheel~=0.38.4",
+    VERSIONS["airflow"],
+    "attrs",
+    VERSIONS["sqlalchemy-databricks"],
+    VERSIONS["databricks-sdk"],
+    VERSIONS["pymysql"],
+    "psycopg2-binary",
+    VERSIONS["geoalchemy2"],
+    VERSIONS["packaging"],
 }
 
 
@@ -163,7 +171,10 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["azure-identity"],
     },
     "db2": {"ibm-db-sa~=0.3"},
-    "databricks": {VERSIONS["sqlalchemy-databricks"], VERSIONS["databricks-sdk"]},
+    "databricks": {VERSIONS["sqlalchemy-databricks"],
+                   VERSIONS["databricks-sdk"],
+                   "trino==0.327.0",
+                   },
     "datalake-azure": {
         VERSIONS["azure-storage-blob"],
         VERSIONS["azure-identity"],
