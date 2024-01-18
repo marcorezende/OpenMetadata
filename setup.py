@@ -31,7 +31,7 @@ VERSIONS = {
     "airflow": "apache-airflow==2.4.0",
     "avro": "avro==1.11.3",
     "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
-    "geoalchemy2": "GeoAlchemy2~=0.12",
+    "geoalchemy2": "GeoAlchemy2==0.14.3",
     "google-cloud-storage": "google-cloud-storage==1.43.0",
     "great-expectations": "great-expectations~=0.17.0",
     "grpc-tools": "grpcio-tools==1.60.0",
@@ -46,7 +46,7 @@ VERSIONS = {
     "packaging": "packaging==21.3",
     "azure-storage-blob": "azure-storage-blob~=12.14",
     "azure-identity": "azure-identity~=1.12",
-    "sqlalchemy-databricks": "sqlalchemy-databricks~=0.1",
+    "sqlalchemy-databricks": "sqlalchemy-databricks==0.2.0",
     "databricks-sdk": "databricks-sdk==0.16.0",
     "google": "google==3.0.0",
     "trino": "trino[sqlalchemy]",
@@ -129,8 +129,7 @@ base_requirements = {
     VERSIONS["sqlalchemy-databricks"],
     VERSIONS["databricks-sdk"],
     "trino==0.327.0",
-    VERSIONS["pymysql"],
-    "psycopg2-binary",
+    "psycopg2-binary==2.9.3",
     VERSIONS["geoalchemy2"],
     VERSIONS["packaging"],
 }
