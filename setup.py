@@ -126,8 +126,6 @@ base_requirements = {
     "typing-compat~=0.1.0",  # compatibility requirements for 3.7
     "typing-inspect",
     "wheel~=0.38.4",
-    VERSIONS["airflow"],
-    "attrs",
     VERSIONS["sqlalchemy-databricks"],
     VERSIONS["databricks-sdk"],
     "trino==0.327.0",
@@ -135,7 +133,6 @@ base_requirements = {
     "psycopg2-binary",
     VERSIONS["geoalchemy2"],
     VERSIONS["packaging"],
-    "pendulum==2.0.0"
 }
 
 
